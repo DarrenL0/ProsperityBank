@@ -68,5 +68,50 @@ namespace ProsperityBank.Controllers
             //return back to the /Customer
             return RedirectToAction(nameof(Index));
         }
+
+        //GET method to find the customer id when we go into the withdraw page
+        public async Task<IActionResult> Withdraw(int id) => View(await _context.Accounts.FindAsync(id));
+
+        //post method for submission of deposit form/ page
+        [HttpPost]
+        public async Task<IActionResult> Withdraw(int id, decimal amount, string comment)
+        {
+            //retrieve the account in the database
+            var account = await _context.Accounts.Include(x => x.Transactions).
+                FirstOrDefaultAsync(x => x.AccountNumber == id);
+
+            validateDebit(amount, account, TransactionType.Withdraw);
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Amount = amount;
+                ViewBag.Comment = comment;
+                return View(account);
+            }
+
+            // calling model
+            account.Withdraw(amount, comment);
+
+            //updates database
+            await _context.SaveChangesAsync();
+
+            //return back to the /Customer
+            return RedirectToAction(nameof(Index));
+        }
+
+        // adds model errors if invalid entries
+        // used by both Transfer and withdraw to reduce code duplication
+        private void validateDebit(decimal amount, Account account, TransactionType type)
+        {
+            //validation before submission 
+            if (amount <= 0)
+                ModelState.AddModelError(nameof(amount), "Amount must be positive.");
+            if (amount.HasMoreThanTwoDecimalPlaces())
+                ModelState.AddModelError(nameof(amount), "Amount cannot have more than 2 decimal places.");
+            if (amount > account.Balance)
+                ModelState.AddModelError(nameof(amount), "Amount cannot exceed account balance");
+            else if (!account.ValidateDebit(amount, type))
+                ModelState.AddModelError(nameof(amount), "Included transaction fee cost will exceed minimum balance");
+        }
     }
 }

@@ -69,5 +69,104 @@ namespace ProsperityBank.Models
                 });
         }
 
+        public static void Withdraw(this Account account, decimal amount, string comment)
+        {
+            // checking if fee applicable
+            bool chargeFee = DetermineFees(account.Transactions);
+
+            // checks if amount + fee will cause violation of business rules
+            if (ValidateDebit(account, amount, TransactionType.Withdraw))
+            {
+                account.Balance -= amount;
+
+                //create transaction for every withdraw made 
+                account.Transactions.Add(
+                    new Transaction
+                    {
+                        TransactionType = TransactionType.Withdraw,
+                        Amount = amount,
+                        TransactionTimeUtc = DateTime.UtcNow,
+                        Comment = comment
+                    });
+
+                // charging fee if applicable
+                if (chargeFee)
+                {
+                    account.Balance -= ATMWithdrawFee;
+
+                    account.Transactions.Add(
+                    new Transaction
+                    {
+                        TransactionType = TransactionType.ServiceCharge,
+                        Amount = ATMWithdrawFee,
+                        TransactionTimeUtc = DateTime.UtcNow,
+                        Comment = "ATM withdraw fee"
+                    });
+                }
+            }
+        }
+
+        public static bool ValidateDebit(this Account account, decimal amount, TransactionType type)
+        {
+            // adding fee to total transaction amount to ensure fees can be paid on 
+            // any transaction without breaking business rules (negative balance)
+            if (DetermineFees(account.Transactions))
+            {
+                if (type == TransactionType.Withdraw)
+                {
+                    amount += ATMWithdrawFee;
+                }
+                if (type == TransactionType.Transfer)
+                {
+                    amount += AccountTransferFee;
+                }
+            }
+
+
+            if (account.AccountType == AccountType.Checking)
+            {
+                if (account.Balance - amount >= _checkingMinimum)
+                {
+                    return true;
+                }
+            }
+            else if (account.AccountType == AccountType.Saving)
+            {
+                if (account.Balance - amount >= _savingsMinimum)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool DetermineFees(List<Transaction> transactions)
+        {
+            int numFeeTransactions = 0;
+            bool chargeFee = false;
+
+            foreach (var t in transactions)
+            {
+                if (t.TransactionType == TransactionType.Withdraw)
+                {
+                    numFeeTransactions++;
+                }
+                // only outgoing transaction incurr fee, hence must have destination account number
+                else if (t.TransactionType == TransactionType.Transfer && t.DestinationAccountNumber != null)
+                {
+                    numFeeTransactions++;
+                }
+
+                if (numFeeTransactions > NUMBER_FREE_TRANSACTIONS)
+                {
+                    chargeFee = true;
+                    break;
+                }
+            }
+
+            return chargeFee;
+        }
+
     }
  }
