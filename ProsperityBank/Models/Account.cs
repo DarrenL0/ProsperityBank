@@ -41,4 +41,33 @@ namespace ProsperityBank.Models
 
 
     }
-}
+
+    public static class AccountExtension
+    {
+        private static readonly decimal _savingsMinimum = 0;
+        private static readonly decimal _checkingMinimum = 200;
+
+        private static readonly int NUMBER_FREE_TRANSACTIONS = 4;
+
+        private static readonly decimal ATMWithdrawFee = 0.10m;
+        private static readonly decimal AccountTransferFee = 0.20m;
+
+        public static void Deposit(this Account account, decimal amount, string comment)
+        {
+            //logic for deposit
+            account.Balance += amount;
+
+            //create transaction for every deposit made
+            //create a public method in model to add transactions
+            account.Transactions.Add(
+                new Transaction
+                {
+                    TransactionType = TransactionType.Deposit,
+                    Amount = amount,
+                    TransactionTimeUtc = DateTime.UtcNow,
+                    Comment = comment
+                });
+        }
+
+    }
+ }
