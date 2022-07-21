@@ -5,7 +5,9 @@ using ProsperityBank.Data;
 using ProsperityBank.Filters;
 using ProsperityBank.Models;
 using ProsperityBank.Utilities;
+using System.Linq;
 using System.Threading.Tasks;
+using X.PagedList;
 
 namespace ProsperityBank.Controllers
 {
@@ -143,6 +145,18 @@ namespace ProsperityBank.Controllers
 
             //return back to the /Customer
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Statement(int id, int? page = 1)
+        {
+            // maximum of 4 per page.
+            const int pageSize = 4;
+
+            // list is reverse ordered by date (most recent first)
+            var pagedList = await _context.Transactions.Where(x => x.AccountNumber == id).OrderBy(x => x.TransactionTimeUtc).Reverse().
+                ToPagedListAsync(page, pageSize);
+
+            return View(pagedList);
         }
 
         // adds model errors if invalid entries
