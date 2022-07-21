@@ -99,6 +99,52 @@ namespace ProsperityBank.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        //GET method to find the customer id when we go into the transfer page
+        public async Task<IActionResult> Transfer(int id) => View(await _context.Accounts.FindAsync(id));
+
+        //post method for submission of transfer form/ page
+        [HttpPost]
+        public async Task<IActionResult> Transfer(int id, decimal amount, int destAccountNum, string comment)
+        {
+
+            //retrieve the account in the database
+            var account = await _context.Accounts.Include(x => x.Transactions).
+                FirstOrDefaultAsync(x => x.AccountNumber == id);
+
+            // getting the destination account
+            var destAccount = await _context.Accounts.Include(x => x.Transactions).
+                FirstOrDefaultAsync(x => x.AccountNumber == destAccountNum);
+
+            // client side validation
+            validateDebit(amount, account, TransactionType.Transfer);
+            // validates existance of destination account
+            if (destAccount == null)
+            {
+                ModelState.AddModelError(nameof(destAccountNum), "Account with Account Number " + destAccountNum + " does not exist");
+            }
+            if (destAccountNum == account.AccountNumber)
+            {
+                ModelState.AddModelError(nameof(destAccountNum), "You cannot transfer to the same account");
+            }
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Amount = amount;
+                ViewBag.Account = account;
+                ViewBag.destAccountNum = destAccountNum;
+                ViewBag.Comment = comment;
+                return View(account);
+            }
+
+            // model call
+            account.Transfer(destAccount, amount, comment);
+
+            //updates database
+            await _context.SaveChangesAsync();
+
+            //return back to the /Customer
+            return RedirectToAction(nameof(Index));
+        }
+
         // adds model errors if invalid entries
         // used by both Transfer and withdraw to reduce code duplication
         private void validateDebit(decimal amount, Account account, TransactionType type)

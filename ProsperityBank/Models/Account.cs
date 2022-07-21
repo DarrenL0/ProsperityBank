@@ -106,6 +106,67 @@ namespace ProsperityBank.Models
             }
         }
 
+        public static bool Transfer(this Account account, Account destAccount, decimal amount, string comment)
+        {
+            // checking not transfering to the same account
+            if (account.AccountNumber == destAccount.AccountNumber)
+            {
+                return false;
+            }
+
+
+            // checking if fee applicable
+            bool chargeFee = DetermineFees(account.Transactions);
+
+            if (ValidateDebit(account, amount, TransactionType.Transfer))
+            {
+                account.Balance -= amount;
+
+                destAccount.Balance += amount;
+
+                // adding transaction for debit account (this account)
+                account.Transactions.Add(
+                    new Transaction
+                    {
+                        TransactionType = TransactionType.Transfer,
+                        Amount = amount,
+                        TransactionTimeUtc = DateTime.UtcNow,
+                        DestinationAccountNumber = destAccount.AccountNumber,
+                        Comment = comment
+
+                    });
+
+
+                // adding transaction for credit account (dest account)
+                destAccount.Transactions.Add(
+                    new Transaction
+                    {
+                        TransactionType = TransactionType.Transfer,
+                        Amount = amount,
+                        TransactionTimeUtc = DateTime.UtcNow,
+                        Comment = comment
+                    });
+
+
+                // charging fee if applicable
+                if (chargeFee)
+                {
+                    account.Balance -= AccountTransferFee;
+
+                    account.Transactions.Add(
+                    new Transaction
+                    {
+                        TransactionType = TransactionType.ServiceCharge,
+                        Amount = AccountTransferFee,
+                        TransactionTimeUtc = DateTime.UtcNow,
+                        Comment = "Account transfer fee"
+                    });
+                }
+            }
+
+            return true;
+        }
+
         public static bool ValidateDebit(this Account account, decimal amount, TransactionType type)
         {
             // adding fee to total transaction amount to ensure fees can be paid on 
