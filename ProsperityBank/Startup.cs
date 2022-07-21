@@ -1,15 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Rental.Data;
+using ProsperityBank.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace ProsperityBank
 {
@@ -26,8 +23,24 @@ namespace ProsperityBank
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ProsperityBankDBContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
-            );
+            {
+                options.UseSqlServer(Configuration.GetConnectionString(nameof(ProsperityBankDBContext)));
+
+                // Enable lazy loading.
+                options.UseLazyLoadingProxies();
+            });
+
+            //Store session into Web-Server memory
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                // 5 min time out on user login
+                options.IdleTimeout = TimeSpan.FromHours(1);
+                //Make the session cookie essential
+                options.Cookie.IsEssential = true;
+            });
+
+
 
             services.AddControllersWithViews();
         }
@@ -47,9 +60,8 @@ namespace ProsperityBank
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseSession();
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

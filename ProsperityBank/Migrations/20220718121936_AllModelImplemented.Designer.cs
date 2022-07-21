@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProsperityBank.Data;
 
 namespace ProsperityBank.Migrations
 {
     [DbContext(typeof(ProsperityBankDBContext))]
-    partial class ProsperityBankDBContextModelSnapshot : ModelSnapshot
+    [Migration("20220718121936_AllModelImplemented")]
+    partial class AllModelImplemented
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
