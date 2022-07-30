@@ -1,0 +1,50 @@
+﻿@model ProsperityBank.Models.BillPay
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Bill Pay</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="AccountNumber" class="control-label">From Account</label>
+                @*ViewBag calls the viewdata list of account from the create in billpay controller*@
+                <select asp-for="AccountNumber" class="form-control" asp-items="ViewBag.AccountNumber"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="PayeeID" class="control-label">To Payee</label>
+                <select asp-for="PayeeID" class="form-control" asp-items="ViewBag.PayeeID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control"
+                       data-val="true" data-val-number="The field Amount must be a number."
+                       data-val-required="The Amount field is required." />
+                @Html.ValidationMessage("Amount", new { @class = "text-danger" })
+            </div>
+            <div class="form-group">
+                <label asp-for="ScheduleDate" class="control-label"></label>
+                <input asp-for="ScheduleDate" class="form-control" />
+                <span asp-validation-for="ScheduleDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PeriodType" class="control-label"></label>
+                <select asp-for="PeriodType" class="form-control" asp-items="@ViewBag.Periods"></select>
+                <span asp-validation-for="PeriodType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create Bill pay" class="btn btn-primary" />
+                <a class="btn btn-primary" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

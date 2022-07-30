@@ -1,0 +1,88 @@
+﻿@model ProsperityBank_ADMIN.Models.TransactionList
+@{
+    ViewData["Title"] = "Transaction History";
+}
+
+<h2>Transaction History</h2>
+
+<form asp-controller="Transaction" asp-action="Index" method="get">
+    <p>
+        Customer:
+        <select class="custom-select col-sm-4" asp-for="@Model.CustomerID">
+            <option>All</option>
+            @{
+                int customerId = Model.CustomerID == null ? -1 : (int)Model.CustomerID;
+                foreach (var customer in Model.Customers)
+                {
+                    if (customer.CustomerID == customerId)
+                    {
+                        <option selected value="@customer.CustomerID">@customer.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@customer.CustomerID">@customer.Name</option>
+                    }
+                }
+            }
+        </select>
+
+        StartDate: <input type="text" asp-for="@Model.StartDate" placeholder="dd/MM/yyyy hh:mm:ss tt" />
+        @Html.ValidationMessage("StartDate", new { @class = "text-danger" })
+        EndDate: <input type="text" asp-for="@Model.EndDate" placeholder="dd/MM/yyyy hh:mm:ss tt" />
+        @Html.ValidationMessage("EndDate", new { @class = "text-danger" })
+
+        <input type="submit" value="Search" />
+    </p>
+</form>
+
+<table class="table">
+    <thread>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Transactions[0].TransactionType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Transactions[0].AccountNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Transactions[0].Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Transactions[0].DestinationAccountNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Transactions[0].Comment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Transactions[0].TransactionTimeUtc)
+            </th>
+        </tr>
+    </thread>
+
+    <tbody>
+        @foreach (var transaction in Model.Transactions)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => transaction.TransactionType)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => transaction.AccountNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => transaction.Amount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => transaction.DestinationAccountNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => transaction.Comment)
+                </td>
+                <td>
+                    @{var tdate = transaction.TransactionTimeUtc == null ? "" : transaction.TransactionTimeUtc.ToLocalTime().ToString("dd/MM/yyyy");}
+                    @Html.DisplayFor(modelItem => tdate)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

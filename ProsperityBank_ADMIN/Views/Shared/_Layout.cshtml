@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ProsperityBank</title>
+    <title>@ViewData["Title"] - ProsperityBank_ADMIN</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
@@ -12,48 +12,55 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ProsperityBank</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Prosperity Bank ADMIN</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+
                     <ul class="navbar-nav">
-                        @*This here is the logic code to see if a customer is logged in*@
                         @{
-                            var isLoggedIn = Context.Session.GetInt32(nameof(Customer.CustomerId)).HasValue;
+                            var isLoggedIn = Context.Session.GetString("admin");
                         }
-                        @if (isLoggedIn)
+                        @if (isLoggedIn != null)
                         {
                             <li class="nav-item">
                                 <span class="nav-link text-dark">
-                                    Welcome, @Context.Session.GetString(nameof(Customer.CustomerName))
+                                    Welcome, @Context.Session.GetString("admin_name")
                                 </span>
                             </li>
+
                             <li class="nav-item">
-                                @*Asp-Controller mean the controller file, and action mean the method in that controller*@
-                                <a class="nav-link text-dark" asp-controller="Login" asp-action="Logout">Logout</a>
+                                <a class="nav-link text-dark" asp-controller="AdminLogin" asp-action="Logout">Logout</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Login" asp-action="Login">Login</a>
+                                <a class="nav-link text-dark" asp-controller="AdminLogin" asp-action="Login">Login</a>
                             </li>
                         }
+
                     </ul>
+
                     <ul class="navbar-nav flex-grow-1">
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        @if (isLoggedIn)
+                        @if (isLoggedIn != null)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Customer" asp-action="Index">My Accounts</a>
+                                <a class="nav-link text-dark" asp-controller="User" asp-action="Index">All Customers</a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="BillPay" asp-action="Index">Bill pay</a>
+                                <a class="nav-link text-dark" asp-controller="BillPayView" asp-action="Index">Bill Pays</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Transaction" asp-action="Index">Transactions</a>
                             </li>
                         }
                     </ul>
@@ -69,7 +76,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2022 - ProsperityBank - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2021 - ProsperityBank_ADMIN - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

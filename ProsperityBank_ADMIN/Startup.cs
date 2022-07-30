@@ -1,15 +1,16 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ProsperityBank.BackgroundServices;
-using ProsperityBank.Data;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
-
-namespace ProsperityBank
+namespace ProsperityBank_ADMIN
 {
     public class Startup
     {
@@ -23,26 +24,20 @@ namespace ProsperityBank
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ProsperityBankDBContext>(options =>
+            // Configure api client.
+            services.AddHttpClient("api", client =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString(nameof(ProsperityBankDBContext)));
-
-                // Enable lazy loading.
-                options.UseLazyLoadingProxies();
+                client.BaseAddress = new Uri("http://localhost:40613");
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             });
-             
-            //Store session into Web-Server memory
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
             {
-                // 5 min time out on user login
                 options.IdleTimeout = TimeSpan.FromHours(1);
-                //Make the session cookie essential
+                options.Cookie.HttpOnly = true;
+                // Make the session cookie essential.
                 options.Cookie.IsEssential = true;
             });
-
-
-            services.AddHostedService<BillPayBackgroundService>();
             services.AddControllersWithViews();
         }
 
@@ -59,13 +54,12 @@ namespace ProsperityBank
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            //error handling custom message
             app.UseStatusCodePagesWithReExecute("/Error/{0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSession();
             app.UseRouting();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

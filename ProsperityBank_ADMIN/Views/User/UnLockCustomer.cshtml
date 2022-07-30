@@ -1,0 +1,23 @@
+﻿@model ProsperityBank_ADMIN.Models.CustomerDTO
+@{
+    ViewData["Title"] = "UnLock Customer";
+
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="UnLockCustomerPost" asp-route-id="@Model.CustomerID">
+            <div asp-validation-summary="ModelOnly"> class="text-danger"></div>
+            <div class="form-group">
+                <label>Are you sure you want to UnLock @Model.Name</label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Confirm UnLock" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to Customers</a>
+</div>

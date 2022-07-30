@@ -229,5 +229,22 @@ namespace ProsperityBank.Models
             return chargeFee;
         }
 
+        public static void ScheduleBillPay(this Account account, BillPay billpay)
+        {
+            //decrease the account balance by the bill pay amount 
+            account.Balance -= billpay.Amount;
+
+            //add transaction
+            account.Transactions.Add(
+                    new Transaction
+                    {
+                        TransactionType = TransactionType.BillPay,
+                        Amount = billpay.Amount,
+                        TransactionTimeUtc = DateTime.UtcNow,
+                        Comment = "Schedule billpay"
+                    });
+
+        }
+
     }
  }

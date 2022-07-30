@@ -1,0 +1,95 @@
+﻿@model ProsperityBank_ADMIN.Models.BillPayList
+@{
+    ViewData["Title"] = "Bill Pay List";
+}
+
+<h2>Bill Pay List</h2>
+
+<form asp-controller="BillPayView" asp-action="Index" method="get">
+    <p>
+        Customer:
+        <select class="custom-select col-sm-4" asp-for="@Model.CustomerID">
+            <option>All</option>
+            @{
+                int customerId = Model.CustomerID == null ? -1 : (int)Model.CustomerID;
+                foreach (var customer in Model.Customers)
+                {
+                    if (customer.CustomerID == customerId)
+                    {
+                        <option selected value="@customer.CustomerID">@customer.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@customer.CustomerID">@customer.Name</option>
+                    }
+                }
+            }
+        </select>
+
+        <input type="submit" value="Search" />
+    </p>
+</form>
+
+<table class="table">
+    <thread>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.BillPays[0].BillPayId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BillPays[0].AccountNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BillPays[0].PayeeId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BillPays[0].Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BillPays[0].PeriodType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BillPays[0].ScheduleDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BillPays[0].Blocked)
+            </th>
+        </tr>
+    </thread>
+
+    <tbody>
+        @foreach (var billPay in Model.BillPays)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => billPay.BillPayId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => billPay.AccountNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => billPay.PayeeId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => billPay.Amount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => billPay.PeriodType)
+                </td>
+                <td>
+                    @{ string localTime = billPay.ScheduleDate.ToLocalTime().ToString(); }
+                    @Html.DisplayFor(modelItem => localTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => billPay.Blocked)
+                </td>
+                <td>
+                    <a class="btn btn-primary"
+                       asp-action="BlockBillPay" asp-route-id="@billPay.BillPayId">Block BillPay</a>
+                    <a class="btn btn-primary"
+                       asp-action="UnBlockBillPay" asp-route-id="@billPay.BillPayId">Unblock BillPay</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

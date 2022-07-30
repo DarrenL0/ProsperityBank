@@ -1,0 +1,23 @@
+﻿@model ProsperityBank_ADMIN.Models.BillPayDTO
+@{
+    ViewData["Title"] = "Block BillPay";
+
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="UnBlockBillPayPost" asp-route-id="@Model.BillPayId">
+            <div asp-validation-summary="ModelOnly"> class="text-danger"></div>
+            <div class="form-group">
+                <label>Are you sure you want to Unblock @Model.BillPayId</label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Confirm Unblock" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to BillPays</a>
+</div>

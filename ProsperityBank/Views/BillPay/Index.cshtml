@@ -1,0 +1,60 @@
+﻿@model List<BillPay>
+@using System;
+
+@{
+    ViewData["Title"] = "Index";
+    TimeZoneInfo format = TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time");
+}
+
+<h1> Bill Pay</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary"> Add Bill Pay</a>
+    <a asp-action="Statement" class="btn btn-primary"> View Bill Pay History</a>
+</p>
+<table class="table">
+    <tread>
+        <tr>
+            <th>@Html.DisplayNameFor(x => x[0].Amount)</th>
+            <th>@Html.DisplayNameFor(x => x[0].ScheduleDate)</th>
+            <th>@Html.DisplayNameFor(x => x[0].PeriodType)</th>
+            <th>@Html.DisplayNameFor(x => x[0].Account)</th>
+            <th>@Html.DisplayNameFor(x => x[0].Payee)</th>
+            <th>@Html.DisplayNameFor(x => x[0].Blocked)</th>
+        </tr>
+    </tread>
+
+    <tbody>
+        @foreach (var billPay in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(Model => billPay.Amount)</td>
+                <td>
+                    @{DateTime convert = TimeZoneInfo.ConvertTimeFromUtc(billPay.ScheduleDate, format);}
+                    @Html.DisplayFor(Model => convert)
+                </td>
+                <td>@Html.DisplayFor(Model => billPay.PeriodType)</td>
+                <td>@Html.DisplayFor(Model => billPay.AccountNumber)</td>
+                <td>@Html.DisplayFor(Model => billPay.Payee.PayeeName)</td>
+                @{ string blocked = "";
+                    if (billPay.Blocked == true)
+                    {
+                        blocked = "BLOCKED";
+                    }
+                    if (billPay.Blocked == false)
+                    {
+                        blocked = "Open";
+                    }
+                }
+                <td>@Html.DisplayFor(modelItem => blocked)</td>
+
+                <td>
+                    <a asp-action="Modify" asp-route-id="@billPay.BillPayID">Modify</a>
+                    <a asp-action="Delete" asp-route-id="@billPay.BillPayID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" , asp-controller="Customer" class="btn btn-primary">Back to Accounts</a>
